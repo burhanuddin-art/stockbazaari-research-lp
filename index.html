@@ -16,7 +16,7 @@
 <script>
 window.SB_CONFIG = {
   SUBMIT_URL: "",          // CRM / webhook endpoint (JSON POST). Fires on step 1 (contact) and on completion.
-  GADS_SEND_TO: "",        // Google Ads conversion, e.g. "AW-123456789/AbCdEfGh" — fires after step 1 (name+email+phone)
+  // Google Ads conversion is handled in GTM (GTM-M82VSRZ8): it fires ONLY on dataLayer event "lp_lead_qualified" (all 3 questions answered).
   // Latest YouTube videos (refreshed automatically — see README in the delivery notes)
   YT_CHANNEL_ID: "UC68nemIejmqqzYfIlNmSRiA",  // @niftysensexbystockbazari
   YT_API_KEY: "",          // YouTube Data API v3 key (restrict to your domain). Enables daily auto-refresh in the browser.
@@ -395,8 +395,19 @@ html[lang=hi] .rot{height:1.7em;line-height:1.7}
   .chart .pl{stroke-dashoffset:0}
 }
 </style>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-M82VSRZ8');</script>
+<!-- End Google Tag Manager -->
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M82VSRZ8"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <!-- ================= HERO ================= -->
 <header class="hero">
@@ -710,8 +721,10 @@ html[lang=hi] .rot{height:1.7em;line-height:1.7}
 
   // ---- state ----
   var cur=1, LAST=5, data={name:"",email:"",phone:"",consent:false,segment:"",capital:"",call_time:""};
-  ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","gclid","fbclid","angle"].forEach(function(k){data[k]=qs.get(k)||"";});
+  ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","utm_id","campaign_id","adgroup_id","ad_id","device","network","gclid","gbraid","wbraid","fbclid","angle"].forEach(function(k){data[k]=qs.get(k)||"";});
   data.lang=LANG;
+  data.lead_id="SB"+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,6).toUpperCase();
+  var QUALIFIED_SENT=false;
   data.landing_page=location.href.split("?")[0];
   window.dataLayer=window.dataLayer||[];
   function track(ev,x){var o={event:ev,form_step:cur};for(var k in (x||{}))o[k]=x[k];window.dataLayer.push(o);}
@@ -732,7 +745,6 @@ html[lang=hi] .rot{height:1.7em;line-height:1.7}
     if(!(okN&&okE&&okP&&c)){track("lead_form_error");return;}
     data.name=n;data.email=em;data.phone="+91"+ph;data.consent=true;
     post("contact"); track("lead_submit",{lead_stage:"contact"});
-    if(window.gtag&&C.GADS_SEND_TO){gtag("event","conversion",{send_to:C.GADS_SEND_TO});}
     document.getElementById("mcta").classList.remove("show");
     document.getElementById("fcBadge").style.display="none";
     show(2);
@@ -744,7 +756,23 @@ html[lang=hi] .rot{height:1.7em;line-height:1.7}
     track("lead_qualifier",{field:g.dataset.key,value:b.dataset.v});setTimeout(function(){show(cur+1);},260);});});
   document.querySelectorAll("[data-back]").forEach(function(b){b.addEventListener("click",function(){if(cur>2)show(cur-1);});});
   document.querySelectorAll("[data-skip]").forEach(function(b){b.addEventListener("click",function(){track("lead_qualifier_skip");show(LAST);});});
-  function finish(){post("complete");track("lead_complete",{segment:data.segment,capital:data.capital,call_time:data.call_time});
+  function finish(){
+    var allAnswered=!!(data.segment&&data.capital&&data.call_time);
+    post(allAnswered?"complete":"partial");
+    track("lead_complete",{lead_id:data.lead_id,all_answered:allAnswered,segment:data.segment,capital:data.capital,call_time:data.call_time});
+    // Google Ads conversion trigger — ONLY when every qualifying question is answered (skips do not count). Fires once per page load.
+    if(allAnswered&&!QUALIFIED_SENT){QUALIFIED_SENT=true;
+      // Existing GTM setup: "GAds- User Provided Data" fires on CE lead_form_submission (enhanced conversions, reads email/phone from the form),
+      // then the Google Ads conversion + GA4 generate_lead fire on the "thankyou" page view.
+      window.dataLayer.push({event:"lead_form_submission",lead_id:data.lead_id});
+      try{localStorage.setItem("sb_pending_lead",JSON.stringify({lid:data.lead_id,ts:Date.now(),done:false}));
+          sessionStorage.setItem("sb_lead_summary",JSON.stringify({name:data.name,segment:data.segment,capital:data.capital,call_time:data.call_time}));}catch(e){}
+      setTimeout(function(){location.href="/thankyou.html?lid="+encodeURIComponent(data.lead_id)+(HI_ON?"&lang=hi":"");},700);
+      window.dataLayer.push({event:"lp_lead_qualified",lead_id:data.lead_id,
+        user_data:{email:data.email.toLowerCase(),phone_number:data.phone},
+        lead_segment:data.segment,lead_capital:data.capital,lead_call_time:data.call_time,lead_lang:data.lang,lead_angle:data.angle,
+        utm_source:data.utm_source,utm_medium:data.utm_medium,utm_campaign:data.utm_campaign,utm_content:data.utm_content,
+        campaign_id:data.campaign_id,adgroup_id:data.adgroup_id,ad_id:data.ad_id});}
     var L=HI_ON?["नाम","मोबाइल","ट्रेड","कैपिटल","कॉल का समय"]:["Name","Mobile","Trades","Capital","Best time"];
     var rows=[[L[0],data.name],[L[1],data.phone],[L[2],data.segment||"—"],[L[3],data.capital||"—"],[L[4],data.call_time||"—"]];
     document.getElementById("summary").innerHTML=rows.map(function(r){return "<div><span>"+r[0]+"</span><b>"+String(r[1]).replace(/</g,"&lt;")+"</b></div>";}).join("");}
