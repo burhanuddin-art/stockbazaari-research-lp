@@ -13,10 +13,12 @@
   var qs=new URLSearchParams(location.search), lid=qs.get("lid")||"", ok=false;
   try{var p=JSON.parse(localStorage.getItem("sb_pending_lead")||"null");
       if(p&&lid&&p.lid===lid&&!p.done&&(Date.now()-p.ts)<30*60*1000){ok=true;p.done=true;localStorage.setItem("sb_pending_lead",JSON.stringify(p));}}catch(e){}
+  var test=false; try{test=sessionStorage.getItem("sb_test")==="1";}catch(e){}
+  if(test)ok=false;   /* test leads (?sb_test=1) never load GTM, so no conversion is recorded */
   window.SB_COUNTED=ok;
   if(!ok)return;
   window.dataLayer=window.dataLayer||[];
-  window.dataLayer.push({lead_id:lid});
+  window.dataLayer.push({lead_id:lid,lp_variant:p&&p.v==="B"?"B_single_form":"A_step_form"});
   (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
   var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;
   j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
@@ -75,8 +77,8 @@ footer div{margin-top:8px}
     document.getElementById("sf").textContent="हम कभी भी आपका ट्रेडिंग लॉगिन, पासवर्ड या OTP नहीं मांगेंगे।";
     document.getElementById("bk").textContent="stockbazaari.com पर जाएं";
   }else if(first){document.getElementById("fn").textContent=", "+first;}
-  var L=hi?["ट्रेड","कैपिटल","कॉल का समय"]:["Trades","Capital","Best time to call"];
-  var rows=[[L[0],d.segment],[L[1],d.capital],[L[2],d.call_time]].filter(function(r){return r[1];});
+  var L=hi?["ट्रेड","कैपिटल","कॉल का समय","शहर"]:["Trades","Capital","Best time to call","City"];
+  var rows=[[L[0],d.segment],[L[1],d.capital],[L[2],d.call_time],[L[3],d.city]].filter(function(r){return r[1];});
   if(rows.length){var b=document.getElementById("sum");b.hidden=false;
     b.innerHTML=rows.map(function(r){return "<div><span>"+r[0]+"</span><b>"+String(r[1]).replace(/</g,"&lt;")+"</b></div>";}).join("");}
 })();

@@ -113,6 +113,12 @@ h1,h2,h3,.fh{font-family:var(--fh);letter-spacing:-.025em}
 .consent{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:12px;color:var(--muted);line-height:1.45}
 .consent input{margin-top:2px;width:16px;height:16px;accent-color:var(--blue);flex:0 0 auto}
 .consent.bad{color:var(--coral)}
+.vb{display:none} html[data-v=B] .vb{display:block}
+.bgrid>.field,.vb .input{min-width:0}
+.input select{flex:1;width:100%;text-overflow:ellipsis;border:0;outline:0;background:transparent;font:500 16px var(--fb);padding:15px 40px 15px 16px;color:var(--ink);min-width:0;-webkit-appearance:none;appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7390' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:18px}
+.input select:invalid{color:#A3A9C2}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px} @media(max-width:480px){.bgrid{grid-template-columns:1fr}}
 .submit{width:100%;margin-top:18px}
 .assure{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--muted);font-weight:500}
 .assure span{display:inline-flex;align-items:center;gap:6px}
@@ -395,6 +401,15 @@ html[lang=hi] .rot{height:1.7em;line-height:1.7}
   .chart .pl{stroke-dashoffset:0}
 }
 </style>
+<script>
+/* A/B test: 50/50 page variant, same URL, no redirect. Sticky per device. ?sb_v=A|B forces a variant (testing). */
+(function(){var v="",q=new URLSearchParams(location.search),f=(q.get("sb_v")||"").toUpperCase();
+  try{v=localStorage.getItem("sb_variant")||"";}catch(e){}
+  if(f==="A"||f==="B")v=f; if(v!=="A"&&v!=="B")v=Math.random()<0.5?"A":"B";
+  try{localStorage.setItem("sb_variant",v);}catch(e){}
+  window.SB_VARIANT=v; document.documentElement.setAttribute("data-v",v);
+  window.dataLayer=window.dataLayer||[]; window.dataLayer.push({lp_variant:v==="B"?"B_single_form":"A_step_form"});})();
+</script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -446,6 +461,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="field" id="f-phone"><label data-i18n="t8" for="phone">Mobile number</label>
               <div class="input"><span class="pre">+91</span><input id="phone" name="phone" type="tel" autocomplete="tel-national" inputmode="numeric" placeholder="10-digit mobile number" maxlength="10"></div>
               <div data-i18n="t11" class="err">Please enter a valid 10-digit mobile number.</div></div>
+            <div class="vb">
+            <div class="field" id="f-city"><label for="city" data-b="city_l">City</label>
+              <div class="input"><input id="city" name="city" autocomplete="address-level2" placeholder="e.g. Pune" maxlength="40"></div>
+              <div class="err" data-b="city_e">Please enter your city.</div></div>
+            <div class="bgrid">
+            <div class="field" id="f-seg"><label for="seg" data-b="seg_l">What do you trade most?</label>
+              <div class="input"><select id="seg" required>
+                <option value="" disabled selected data-b="sel">Select</option>
+                <option value="Index options (Nifty / Bank Nifty / Sensex)" data-b="s1">Index options (Nifty, Bank Nifty)</option>
+                <option value="Stock options" data-b="s2">Stock options</option>
+                <option value="Futures" data-b="s3">Futures</option>
+                <option value="Equity cash / intraday" data-b="s4">Equity cash / intraday</option>
+                <option value="New to trading" data-b="s5">I'm just starting out</option></select></div>
+              <div class="err" data-b="seg_e">Please select one.</div></div>
+            <div class="field" id="f-cap"><label for="cap" data-b="cap_l">Trading capital</label>
+              <div class="input"><select id="cap" required>
+                <option value="" disabled selected data-b="sel">Select</option>
+                <option value="Below ₹50,000" data-b="c1">Below ₹50K</option>
+                <option value="₹50,000 – ₹2 lakh">₹50K – ₹2L</option>
+                <option value="₹2 lakh – ₹5 lakh">₹2L – ₹5L</option>
+                <option value="Above ₹5 lakh" data-b="c4">Above ₹5L</option></select></div>
+              <div class="err" data-b="seg_e">Please select one.</div></div>
+            </div></div>
             <label class="consent" id="consentWrap"><input type="checkbox" id="consent"><span data-i18n="t139">I agree to be contacted by Stockbazaari via call, SMS or WhatsApp about its research services, even if I am on DND, and accept the <a data-i18n="t35" href="https://stockbazaari.com/pages/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
             <button type="submit" class="btn btn-main submit" id="ctaMain"><span data-i18n="t4">Get Research Calls</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
             <div class="assure">
@@ -723,11 +761,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   var cur=1, LAST=5, data={name:"",email:"",phone:"",consent:false,segment:"",capital:"",call_time:""};
   ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","utm_id","campaign_id","adgroup_id","ad_id","device","network","gclid","gbraid","wbraid","fbclid","angle"].forEach(function(k){data[k]=qs.get(k)||"";});
   data.lang=LANG;
+  var VAR=window.SB_VARIANT==="B"?"B":"A";
+  data.variant=VAR==="B"?"B – Single form":"A – Step form"; data.city="";
+  if(qs.get("sb_test")==="1"){data.test=1;try{sessionStorage.setItem("sb_test","1");}catch(e){}}
+  if(VAR==="B"&&HI_ON){var BH={city_l:"शहर",city_e:"कृपया अपना शहर लिखें।",seg_l:"आप सबसे ज़्यादा क्या ट्रेड करते हैं?",cap_l:"ट्रेडिंग कैपिटल",seg_e:"कृपया एक विकल्प चुनें।",sel:"चुनें",
+      s1:"इंडेक्स ऑप्शन (निफ्टी, बैंक निफ्टी)",s2:"स्टॉक ऑप्शन",s3:"फ्यूचर्स",s4:"इक्विटी कैश / इंट्राडे",s5:"अभी शुरुआत कर रहा हूँ",c1:"₹50K से कम",c4:"₹5L से ज़्यादा"};
+    document.querySelectorAll("[data-b]").forEach(function(el){var h=BH[el.getAttribute("data-b")]; if(h) el.textContent=h;});
+    document.getElementById("city").placeholder="जैसे: पुणे";}
   data.lead_id="SB"+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,6).toUpperCase();
   var QUALIFIED_SENT=false;
   data.landing_page=location.href.split("?")[0];
   window.dataLayer=window.dataLayer||[];
-  function track(ev,x){var o={event:ev,form_step:cur};for(var k in (x||{}))o[k]=x[k];window.dataLayer.push(o);}
+  function track(ev,x){var o={event:ev,form_step:cur,lp_variant:VAR==="B"?"B_single_form":"A_step_form"};for(var k in (x||{}))o[k]=x[k];window.dataLayer.push(o);}
   function post(status){if(!C.SUBMIT_URL)return;var p=Object.assign({status:status,submitted_at:new Date().toISOString()},data);
     try{fetch(C.SUBMIT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(p),keepalive:true});}catch(e){}}
   var steps=[].slice.call(document.querySelectorAll(".step"));
@@ -742,7 +787,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     var n=document.getElementById("name").value.trim(), em=document.getElementById("email").value.trim(), ph=document.getElementById("phone").value.replace(/\D/g,""), c=document.getElementById("consent").checked;
     var okN=/^[A-Za-zऀ-ॿ .'-]{2,60}$/.test(n), okE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em), okP=/^[6-9]\d{9}$/.test(ph);
     bad("f-name",!okN);bad("f-email",!okE);bad("f-phone",!okP);document.getElementById("consentWrap").classList.toggle("bad",!c);
-    if(!(okN&&okE&&okP&&c)){track("lead_form_error");return;}
+    var ok=okN&&okE&&okP&&c;
+    if(VAR==="B"){var ct=document.getElementById("city").value.trim(), sg=document.getElementById("seg").value, cp=document.getElementById("cap").value;
+      var okC=/^[A-Za-zऀ-ॿ .'-]{2,40}$/.test(ct);bad("f-city",!okC);bad("f-seg",!sg);bad("f-cap",!cp);ok=ok&&okC&&!!sg&&!!cp;
+      if(!ok){track("lead_form_error");return;}
+      data.name=n;data.email=em;data.phone="+91"+ph;data.consent=true;data.city=ct;data.segment=sg;data.capital=cp;
+      post("complete"); track("lead_submit",{lead_stage:"single_form"});
+      track("lead_complete",{lead_id:data.lead_id,all_answered:true,segment:sg,capital:cp});
+      var btn=document.getElementById("ctaMain"); btn.disabled=true; btn.style.opacity=".7";
+      convert(); return;}
+    if(!ok){track("lead_form_error");return;}
     data.name=n;data.email=em;data.phone="+91"+ph;data.consent=true;
     post("contact"); track("lead_submit",{lead_stage:"contact"});
     document.getElementById("mcta").classList.remove("show");
@@ -751,6 +805,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   });
   document.getElementById("phone").addEventListener("input",function(){this.value=this.value.replace(/\D/g,"").slice(0,10);});
   document.getElementById("consent").addEventListener("change",function(){document.getElementById("consentWrap").classList.remove("bad");});
+  [["city","f-city"],["seg","f-seg"],["cap","f-cap"]].forEach(function(x){var el=document.getElementById(x[0]);el.addEventListener(el.tagName==="SELECT"?"change":"input",function(){bad(x[1],false);});});
   document.querySelectorAll(".opts").forEach(function(g){g.addEventListener("click",function(e){var b=e.target.closest(".opt");if(!b)return;
     g.querySelectorAll(".opt").forEach(function(o){o.classList.remove("sel");});b.classList.add("sel");data[g.dataset.key]=b.dataset.v;
     track("lead_qualifier",{field:g.dataset.key,value:b.dataset.v});setTimeout(function(){show(cur+1);},260);});});
@@ -761,21 +816,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     post(allAnswered?"complete":"partial");
     track("lead_complete",{lead_id:data.lead_id,all_answered:allAnswered,segment:data.segment,capital:data.capital,call_time:data.call_time});
     // Google Ads conversion trigger — ONLY when every qualifying question is answered (skips do not count). Fires once per page load.
-    if(allAnswered&&!QUALIFIED_SENT){QUALIFIED_SENT=true;
+    if(allAnswered)convert();
+    var L=HI_ON?["नाम","मोबाइल","ट्रेड","कैपिटल","कॉल का समय"]:["Name","Mobile","Trades","Capital","Best time"];
+    var rows=[[L[0],data.name],[L[1],data.phone],[L[2],data.segment||"—"],[L[3],data.capital||"—"],[L[4],data.call_time||"—"]];
+    document.getElementById("summary").innerHTML=rows.map(function(r){return "<div><span>"+r[0]+"</span><b>"+String(r[1]).replace(/</g,"&lt;")+"</b></div>";}).join("");}
+  function convert(){
+    if(!QUALIFIED_SENT){QUALIFIED_SENT=true;
       // Existing GTM setup: "GAds- User Provided Data" fires on CE lead_form_submission (enhanced conversions, reads email/phone from the form),
       // then the Google Ads conversion + GA4 generate_lead fire on the "thankyou" page view.
       window.dataLayer.push({event:"lead_form_submission",lead_id:data.lead_id});
-      try{localStorage.setItem("sb_pending_lead",JSON.stringify({lid:data.lead_id,ts:Date.now(),done:false}));
-          sessionStorage.setItem("sb_lead_summary",JSON.stringify({name:data.name,segment:data.segment,capital:data.capital,call_time:data.call_time}));}catch(e){}
+      try{localStorage.setItem("sb_pending_lead",JSON.stringify({lid:data.lead_id,ts:Date.now(),done:false,v:VAR}));
+          sessionStorage.setItem("sb_lead_summary",JSON.stringify({name:data.name,segment:data.segment,capital:data.capital,call_time:data.call_time,city:data.city}));}catch(e){}
       setTimeout(function(){location.href="/thankyou.html?lid="+encodeURIComponent(data.lead_id)+(HI_ON?"&lang=hi":"");},700);
       window.dataLayer.push({event:"lp_lead_qualified",lead_id:data.lead_id,
         user_data:{email:data.email.toLowerCase(),phone_number:data.phone},
         lead_segment:data.segment,lead_capital:data.capital,lead_call_time:data.call_time,lead_lang:data.lang,lead_angle:data.angle,
         utm_source:data.utm_source,utm_medium:data.utm_medium,utm_campaign:data.utm_campaign,utm_content:data.utm_content,
-        campaign_id:data.campaign_id,adgroup_id:data.adgroup_id,ad_id:data.ad_id});}
-    var L=HI_ON?["नाम","मोबाइल","ट्रेड","कैपिटल","कॉल का समय"]:["Name","Mobile","Trades","Capital","Best time"];
-    var rows=[[L[0],data.name],[L[1],data.phone],[L[2],data.segment||"—"],[L[3],data.capital||"—"],[L[4],data.call_time||"—"]];
-    document.getElementById("summary").innerHTML=rows.map(function(r){return "<div><span>"+r[0]+"</span><b>"+String(r[1]).replace(/</g,"&lt;")+"</b></div>";}).join("");}
+        campaign_id:data.campaign_id,adgroup_id:data.adgroup_id,ad_id:data.ad_id,lp_variant:VAR==="B"?"B_single_form":"A_step_form"});}}
 
   // ---- CTAs scroll to form & focus ----
   document.querySelectorAll("[data-cta]").forEach(function(b){b.addEventListener("click",function(e){e.preventDefault();
