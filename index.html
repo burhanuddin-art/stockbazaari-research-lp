@@ -113,6 +113,11 @@ h1,h2,h3,.fh{font-family:var(--fh);letter-spacing:-.025em}
 .consent{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:12px;color:var(--muted);line-height:1.45}
 .consent input{margin-top:2px;width:16px;height:16px;accent-color:var(--blue);flex:0 0 auto}
 .consent.bad{color:var(--coral)}
+.consent.bad input{outline:2px solid var(--coral);outline-offset:2px;border-radius:3px}
+.cerr{display:none;margin-top:6px;font-size:12.5px;font-weight:700;color:var(--coral)}
+.consent.bad+.cerr{display:block}
+.consent.shake{animation:cshake .35s}
+@keyframes cshake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
 .vb{display:none} html[data-v=B] .vb{display:block}
 .bgrid>.field,.vb .input{min-width:0}
 .input select{flex:1;width:100%;text-overflow:ellipsis;border:0;outline:0;background:transparent;font:500 16px var(--fb);padding:15px 40px 15px 16px;color:var(--ink);min-width:0;-webkit-appearance:none;appearance:none;cursor:pointer;
@@ -486,6 +491,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <div class="err" data-b="seg_e">Please select one.</div></div>
             </div></div>
             <label class="consent" id="consentWrap"><input type="checkbox" id="consent"><span data-i18n="t139">I agree to be contacted by Stockbazaari via call, SMS or WhatsApp about its research services, even if I am on DND, and accept the <a data-i18n="t35" href="https://stockbazaari.com/pages/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+            <div class="cerr" id="consentErr" role="alert">Please tick the box above to agree before submitting.</div>
             <button type="submit" class="btn btn-main submit" id="ctaMain"><span data-i18n="t4">Get Research Calls</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
             <div class="assure">
               <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><span data-i18n="t12">Details kept private</span></span>
@@ -732,6 +738,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     var k=document.querySelector(".kicker"); if(k) k.innerHTML='<b>F&amp;O</b><span class="rot" id="rot"><span>निफ्टी</span></span> ट्रेडर्स के लिए ऑप्शन रिसर्च';
     document.getElementById("name").placeholder="जैसे: राहुल शर्मा";
     document.getElementById("phone").placeholder="10 अंकों का मोबाइल नंबर";
+    document.getElementById("consentErr").textContent="सबमिट करने से पहले कृपया ऊपर दिए बॉक्स पर टिक करें।";
     var vp=document.getElementById("vpanel"); if(vp) vp.setAttribute("aria-label","मार्केट आउटलुक वीडियो");
   }
   // ---- message match: ?angle=guesswork|exit|time|tips|revenge|expiry ----
@@ -788,6 +795,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     var n=document.getElementById("name").value.trim(), em=document.getElementById("email").value.trim(), ph=document.getElementById("phone").value.replace(/\D/g,""), c=document.getElementById("consent").checked;
     var okN=/^[A-Za-zऀ-ॿ .'-]{2,60}$/.test(n), okE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em), okP=/^[6-9]\d{9}$/.test(ph);
     bad("f-name",!okN);bad("f-email",!okE);bad("f-phone",!okP);document.getElementById("consentWrap").classList.toggle("bad",!c);
+    if(!c){var cw=document.getElementById("consentWrap");cw.classList.remove("shake");void cw.offsetWidth;cw.classList.add("shake");
+      var fb=document.querySelector("#leadForm .field.bad"); if(!fb){cw.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(function(){document.getElementById("consent").focus({preventScroll:true});},350);}
+      track("lead_consent_missing");}
     var ok=okN&&okE&&okP&&c;
     if(VAR==="B"){var ct=document.getElementById("city").value.trim(), sg=document.getElementById("seg").value, cp=document.getElementById("cap").value;
       var okC=/^[A-Za-zऀ-ॿ .'-]{2,40}$/.test(ct);bad("f-city",!okC);bad("f-seg",!sg);bad("f-cap",!cp);ok=ok&&okC&&!!sg&&!!cp;
