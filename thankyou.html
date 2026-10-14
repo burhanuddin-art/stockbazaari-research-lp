@@ -15,7 +15,9 @@
       if(p&&lid&&p.lid===lid&&!p.done&&(Date.now()-p.ts)<30*60*1000){ok=true;p.done=true;localStorage.setItem("sb_pending_lead",JSON.stringify(p));}}catch(e){}
   var test=false; try{test=sessionStorage.getItem("sb_test")==="1";}catch(e){}
   if(test)ok=false;   /* test leads (?sb_test=1) never load GTM, so no conversion is recorded */
-  var ud=null; try{ud=JSON.parse(sessionStorage.getItem("sb_ud")||"null");sessionStorage.removeItem("sb_ud");}catch(e){}   /* always cleared, even when GTM does not load */
+  var dbg=qs.has("gtm_debug"); try{dbg=dbg||sessionStorage.getItem("sb_gtm_debug")==="1";}catch(e){}
+  if(dbg)ok=true;     /* GTM Preview only (Tag Assistant tab): always load GTM so tags can be checked; real visitors never have this flag */
+  var ud=null; try{ud=JSON.parse(sessionStorage.getItem("sb_ud")||"null");if(!dbg)sessionStorage.removeItem("sb_ud");}catch(e){}   /* always cleared, even when GTM does not load */
   window.SB_COUNTED=ok;
   if(!ok)return;
   window.dataLayer=window.dataLayer||[];

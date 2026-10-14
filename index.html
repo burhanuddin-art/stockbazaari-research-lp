@@ -772,6 +772,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   var VAR=window.SB_VARIANT==="B"?"B":"A";
   data.variant=VAR==="B"?"B – Single form":"A – Step form"; data.city="";
   if(qs.get("sb_test")==="1"){data.test=1;try{sessionStorage.setItem("sb_test","1");}catch(e){}}
+  /* GTM Preview / Tag Assistant: remember debug mode for this tab so the thank-you page always loads GTM there */
+  if(qs.has("gtm_debug")||/tagassistant\.google\.com/.test(document.referrer)){try{sessionStorage.setItem("sb_gtm_debug","1");}catch(e){}}
   if(VAR==="B"&&HI_ON){var BH={city_l:"शहर",city_e:"कृपया अपना शहर लिखें।",seg_l:"आप सबसे ज़्यादा क्या ट्रेड करते हैं?",cap_l:"ट्रेडिंग कैपिटल",seg_e:"कृपया एक विकल्प चुनें।",sel:"चुनें",
       s1:"इंडेक्स ऑप्शन (निफ्टी, बैंक निफ्टी)",s2:"स्टॉक ऑप्शन",s3:"फ्यूचर्स",s4:"इक्विटी कैश / इंट्राडे",s5:"अभी शुरुआत कर रहा हूँ",c1:"₹50K से कम",c4:"₹5L से ज़्यादा"};
     document.querySelectorAll("[data-b]").forEach(function(el){var h=BH[el.getAttribute("data-b")]; if(h) el.textContent=h;});
