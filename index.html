@@ -402,11 +402,12 @@ html[lang=hi] .rot{height:1.7em;line-height:1.7}
 }
 </style>
 <script>
-/* A/B test: 50/50 page variant, same URL, no redirect. Sticky per device. ?sb_v=A|B forces a variant (testing). */
-(function(){var v="",q=new URLSearchParams(location.search),f=(q.get("sb_v")||"").toUpperCase();
-  try{v=localStorage.getItem("sb_variant")||"";}catch(e){}
-  if(f==="A"||f==="B")v=f; if(v!=="A"&&v!=="B")v=Math.random()<0.5?"A":"B";
+/* Page variant. A/B test ended 14-Oct-2026: everyone gets B (single form). ?sb_v=A previews the old step form (not saved).
+   To restart the 50/50 test set AB_SPLIT=true. */
+(function(){var AB_SPLIT=false,v="B",q=new URLSearchParams(location.search),f=(q.get("sb_v")||"").toUpperCase();
+  if(AB_SPLIT){try{v=localStorage.getItem("sb_variant")||"";}catch(e){} if(v!=="A"&&v!=="B")v=Math.random()<0.5?"A":"B";}
   try{localStorage.setItem("sb_variant",v);}catch(e){}
+  if(f==="A"||f==="B")v=f;
   window.SB_VARIANT=v; document.documentElement.setAttribute("data-v",v);
   window.dataLayer=window.dataLayer||[]; window.dataLayer.push({lp_variant:v==="B"?"B_single_form":"A_step_form"});})();
 </script>
