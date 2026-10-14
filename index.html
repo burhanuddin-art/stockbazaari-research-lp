@@ -837,7 +837,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // then the Google Ads conversion + GA4 generate_lead fire on the "thankyou" page view.
       window.dataLayer.push({event:"lead_form_submission",lead_id:data.lead_id});
       try{localStorage.setItem("sb_pending_lead",JSON.stringify({lid:data.lead_id,ts:Date.now(),done:false,v:VAR}));
-          sessionStorage.setItem("sb_lead_summary",JSON.stringify({name:data.name,segment:data.segment,capital:data.capital,call_time:data.call_time,city:data.city}));}catch(e){}
+          sessionStorage.setItem("sb_lead_summary",JSON.stringify({name:data.name,segment:data.segment,capital:data.capital,call_time:data.call_time,city:data.city}));
+          sessionStorage.setItem("sb_ud",JSON.stringify({email:String(data.email||"").trim().toLowerCase(),phone_number:data.phone}));}catch(e){}
       setTimeout(function(){location.href="/thankyou.html?lid="+encodeURIComponent(data.lead_id)+(HI_ON?"&lang=hi":"");},700);
       window.dataLayer.push({event:"lp_lead_qualified",lead_id:data.lead_id,
         user_data:{email:data.email.toLowerCase(),phone_number:data.phone},

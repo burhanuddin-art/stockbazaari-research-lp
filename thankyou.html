@@ -15,10 +15,12 @@
       if(p&&lid&&p.lid===lid&&!p.done&&(Date.now()-p.ts)<30*60*1000){ok=true;p.done=true;localStorage.setItem("sb_pending_lead",JSON.stringify(p));}}catch(e){}
   var test=false; try{test=sessionStorage.getItem("sb_test")==="1";}catch(e){}
   if(test)ok=false;   /* test leads (?sb_test=1) never load GTM, so no conversion is recorded */
+  var ud=null; try{ud=JSON.parse(sessionStorage.getItem("sb_ud")||"null");sessionStorage.removeItem("sb_ud");}catch(e){}   /* always cleared, even when GTM does not load */
   window.SB_COUNTED=ok;
   if(!ok)return;
   window.dataLayer=window.dataLayer||[];
-  window.dataLayer.push({lead_id:lid,lp_variant:p&&p.v==="B"?"B_single_form":"A_step_form"});
+  /* user_data (email + E.164 phone) is read by GTM's User-Provided Data variable and sent hashed with the Ads conversion (enhanced conversions) */
+  window.dataLayer.push({lead_id:lid,lp_variant:p&&p.v==="B"?"B_single_form":"A_step_form",user_data:ud&&ud.email?{email:ud.email,phone_number:ud.phone_number}:undefined});
   (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
   var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;
   j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
