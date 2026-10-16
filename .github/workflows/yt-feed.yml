@@ -1,0 +1,46 @@
+name: Update YouTube feed
+
+# Refreshes videos.json from the Stockbazaari YouTube channel RSS (no API key needed).
+# The landing page reads videos.json, so new daily outlook videos appear automatically.
+on:
+  schedule:
+    - cron: "17 * * * *"   # every hour
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch latest videos
+        run: |
+          python3 - <<'PY'
+          import json, re, html, urllib.request
+          url = "https://www.youtube.com/feeds/videos.xml?channel_id=UC68nemIejmqqzYfIlNmSRiA"
+          xml = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=20).read().decode("utf-8")
+          out = []
+          for e in re.findall(r"<entry>(.*?)</entry>", xml, re.S):
+              vid = re.search(r"<yt:videoId>(.*?)</yt:videoId>", e)
+              tit = re.search(r"<title>(.*?)</title>", e)
+              pub = re.search(r"<published>(.*?)</published>", e)
+              if not vid: continue
+              t = html.unescape(tit.group(1)) if tit else ""
+              t = re.sub(r"[\u202a-\u202e]", "", t)
+              t = re.sub(r"\s*@\S+", "", t).strip()
+              out.append({"id": vid.group(1), "title": t, "published": pub.group(1) if pub else ""})
+              if len(out) >= 8: break
+          if out:
+              json.dump(out, open("videos.json", "w"), ensure_ascii=False, indent=1)
+          print(len(out), "videos")
+          PY
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- videos.json; then echo "No change"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add videos.json
+          git commit -m "Update YouTube feed"
+          git push
