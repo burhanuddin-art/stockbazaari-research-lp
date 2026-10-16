@@ -62,7 +62,6 @@ footer div{margin-top:8px}
   <div class="sum" id="sum" hidden></div>
   <p class="next" id="nx"><b>What happens next:</b> a call from our desk · a short walkthrough of research calls with entry, stop-loss, target and rationale.</p>
   <p class="safe" id="sf">We will never ask for your trading login, password or OTP.</p>
-  <a class="btn" id="bk" href="https://stockbazaari.com/">Visit stockbazaari.com</a>
 </main>
 <footer>
   <div><b>Stockbazaari · SEBI Registration No. INH000018665.</b> Investment in securities market are subject to market risks. Read all related documents carefully before investing.</div>
@@ -79,7 +78,6 @@ footer div{margin-top:8px}
     document.getElementById("s").textContent="हमारी रिसर्च डेस्क आपके बताए समय पर आपसे संपर्क करेगी और बताएगी कि हमारी रिसर्च कॉल कैसे काम करती हैं।";
     document.getElementById("nx").innerHTML="<b>आगे क्या होगा:</b> हमारी डेस्क से एक कॉल · एंट्री, स्टॉप-लॉस, टारगेट और कारण के साथ रिसर्च कॉल की छोटी जानकारी।";
     document.getElementById("sf").textContent="हम कभी भी आपका ट्रेडिंग लॉगिन, पासवर्ड या OTP नहीं मांगेंगे।";
-    document.getElementById("bk").textContent="stockbazaari.com पर जाएं";
   }else if(first){document.getElementById("fn").textContent=", "+first;}
   var L=hi?["ट्रेड","कैपिटल","कॉल का समय","शहर"]:["Trades","Capital","Best time to call","City"];
   var rows=[[L[0],d.segment],[L[1],d.capital],[L[2],d.call_time],[L[3],d.city]].filter(function(r){return r[1];});
