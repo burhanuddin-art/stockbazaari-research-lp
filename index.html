@@ -780,34 +780,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   if(HI_ON) ANG=ANG_HI;
   var a=ANG[qs.get("angle")]; if(a){document.getElementById("headline").innerHTML=a[0];document.getElementById("lede").textContent=a[1];}
 
-  // ---- message match for v4/v5 statics: hook + direct headline keyed by utm_content ----
-  var NB='Get Nifty &amp; Bank Nifty<br><span class="grad-t">Research Calls</span>', OP='Get Option<br><span class="grad-t">Research Calls</span>', GR='Get Research<br><span class="grad-t">Calls</span>';
-  var NB_HI='निफ्टी और बैंक निफ्टी की<br><span class="grad-t">रिसर्च कॉल पाएं</span>', OP_HI='ऑप्शन की<br><span class="grad-t">रिसर्च कॉल पाएं</span>', GR_HI='<span class="grad-t">रिसर्च कॉल पाएं</span>';
-  var LEDE_O='From a SEBI-registered Research Analyst — every call with entry, stop-loss, target and rationale. Start with a free trial.';
-  var LEDE_S='Research calls on stocks, Nifty & Bank Nifty from a SEBI-registered Research Analyst — each with entry, stop-loss, target and rationale. Start with a free trial.';
-  var UC={
-    v4_trading_options:['Trading in options?',NB,LEDE_O,'क्या आप ऑप्शन ट्रेड करते हैं?',NB_HI],
-    v4_losing_money:['Losing money in options?',OP,LEDE_O,'ऑप्शन में नुकसान हो रहा है?',OP_HI,1],
-    v4_entry_exit:['Unsure when to enter or exit?',NB,LEDE_O,'एंट्री-एग्ज़िट को लेकर कन्फ्यूज़न?',NB_HI],
-    v4_random_tips:['Tired of random tips?',OP,LEDE_O,'रैंडम टिप्स से परेशान?',OP_HI],
-    v4_capital_50k:['Trading with ₹50K+ capital?',NB,LEDE_O,'₹50K+ कैपिटल से ट्रेड करते हैं?',NB_HI],
-    stk_stock_market:['Trading in the stock market?',GR,LEDE_S,'क्या आप शेयर बाज़ार में ट्रेड करते हैं?',GR_HI],
-    stk_which_stock:['Confused which stock to buy?',GR,LEDE_S,'कौन-सा शेयर खरीदें, कन्फ्यूज़न है?',GR_HI],
-    stk_losing_money:['Losing money in the market?',GR,LEDE_S,'मार्केट में नुकसान हो रहा है?',GR_HI,1],
-    stk_random_tips:['Tired of random stock tips?',GR,LEDE_S,'रैंडम स्टॉक टिप्स से परेशान?',GR_HI],
-    stk_capital_50k:['Investing with ₹50K+ capital?',GR,LEDE_S,'₹50K+ कैपिटल से निवेश करते हैं?',GR_HI]
-  };
-  var u=UC[(qs.get("utm_content")||"").toLowerCase()];
-  if(u){var hk=document.getElementById("hook");hk.textContent=HI_ON?u[3]:u[0];if(u[5])hk.classList.add("cor");
-    document.getElementById("headline").innerHTML=HI_ON?u[4]:u[1]; if(!HI_ON)document.getElementById("lede").textContent=u[2];
-    document.querySelector(".hero-grid").classList.add("hasHook");}
+  // ---- two landing-page variants: OPTIONS (default) and STOCK MARKET (?lp=stocks or utm_content starting "stk_") ----
+  var LPV=((qs.get("lp")||"").toLowerCase()==="stocks"||/^stk_/i.test(qs.get("utm_content")||""))?"stocks":"options";
+  window.SB_LP=LPV;
+  var hk=document.getElementById("hook"), H1=document.getElementById("headline"), LD=document.getElementById("lede");
+  if(LPV==="options"){
+    hk.textContent=HI_ON?"क्या आप ऑप्शन ट्रेड करते हैं?":"Trading in options?";
+    H1.innerHTML=HI_ON?'निफ्टी और बैंक निफ्टी की<br><span class="grad-t">रिसर्च कॉल पाएं</span>':'Get Nifty &amp; Bank Nifty<br><span class="grad-t">Research Calls</span>';
+    if(!HI_ON) LD.textContent="Option research calls from a SEBI-registered Research Analyst — every call with entry, stop-loss, target and rationale. Start with a free trial.";
+  } else {
+    document.title="Get Research Calls | Stockbazaari — SEBI Registered Research Analyst";
+    hk.textContent="Trading in the stock market?";
+    H1.innerHTML='Get Research<br><span class="grad-t">Calls</span>';
+    LD.textContent="Research calls on stocks, Nifty & Bank Nifty from a SEBI-registered Research Analyst — each with entry, stop-loss, target and rationale. Start with a free trial.";
+    var SET=function(k,h){document.querySelectorAll('[data-i18n="'+k+'"]').forEach(function(e){e.innerHTML=h;});};
+    SET("t67","<b>Stocks · Nifty · Bank Nifty</b>Research calls");
+    SET("t69","The reality of trading");
+    SET("t70",'Most traders lose because<br>they trade <span class="grad-t">without a plan.</span>');
+    SET("t82","Resistance ₹1,320"); SET("t83","Support ₹1,235");
+    SET("t87","<b>Rationale:</b> Breakout above ₹1,235 resistance on rising volume.");
+    var ti=document.querySelector(".trader"); if(ti){ti.src="trader-stocks.webp";ti.width=230;ti.height=373;ti.style.width="230px";}
+    var tk=document.querySelector(".setup .tk"); if(tk) tk.textContent="SAMPLE STOCK · NSE";
+    var vv=document.querySelectorAll(".setup .val"); if(vv.length===3){vv[0].textContent="₹1,240–1,250";vv[1].textContent="₹1,198";vv[2].textContent="₹1,320";}
+  }
+  document.querySelector(".hero-grid").classList.add("hasHook");
 
   // ---- state ----
   var cur=1, LAST=5, data={name:"",email:"",phone:"",consent:false,segment:"",capital:"",call_time:""};
   ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","utm_id","campaign_id","adgroup_id","ad_id","device","network","gclid","gbraid","wbraid","fbclid","angle"].forEach(function(k){data[k]=qs.get(k)||"";});
   data.lang=LANG;
   var VAR=window.SB_VARIANT==="B"?"B":"A";
-  data.variant=VAR==="B"?"B – Single form":"A – Step form"; data.city="";
+  data.variant=(window.SB_LP==="stocks")?"Stock market page":"Options page"; data.city="";
   if(qs.get("sb_test")==="1"){data.test=1;try{sessionStorage.setItem("sb_test","1");}catch(e){}}
   /* GTM Preview / Tag Assistant: remember debug mode for this tab so the thank-you page always loads GTM there */
   if(qs.has("gtm_debug")||/tagassistant\.google\.com/.test(document.referrer)){try{sessionStorage.setItem("sb_gtm_debug","1");}catch(e){}}
