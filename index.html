@@ -464,6 +464,8 @@ html[lang=hi] .rot{height:1.7em;line-height:1.7}
      Each visitor keeps the same form on return. Preview: ?form=1 or ?form=2 (also ?sb_v=B / C; ?sb_v=A = old step form). */
   if(AB_SPLIT){try{v=localStorage.getItem("sb_form")||"";}catch(e){} if(v!=="B"&&v!=="C")v=Math.random()<0.5?"B":"C";}
   try{localStorage.setItem("sb_form",v);}catch(e){}
+  var AD=q.has("gclid")||q.has("gbraid")||q.has("wbraid"); window.SB_AD_CLICK=AD;
+  if(AD){f="";fm="";}  /* real ad clicks always get the 50/50 split, even if a test link was used as the ad URL */
   if(fm==="1")f="B"; if(fm==="2")f="C";
   if(f==="A"||f==="B"||f==="C")v=f;
   window.SB_VARIANT=v; document.documentElement.setAttribute("data-v",v);
@@ -858,7 +860,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   data.lang=LANG;
   var VAR=(window.SB_VARIANT==="B"||window.SB_VARIANT==="C")?window.SB_VARIANT:"A";
   data.variant=((window.SB_LP==="stocks")?"Stock market page":"Options page")+(VAR==="C"?" · Form 2 (short)":VAR==="B"?" · Form 1 (full)":" · Old step form"); data.city="";
-  if(qs.get("sb_test")==="1"){data.test=1;try{sessionStorage.setItem("sb_test","1");}catch(e){}}
+  /* test mode only for manual test links; a real ad click (gclid/gbraid/wbraid) is never treated as a test */
+  if(window.SB_AD_CLICK){try{sessionStorage.removeItem("sb_test");}catch(e){}}
+  else if(qs.get("sb_test")==="1"){data.test=1;try{sessionStorage.setItem("sb_test","1");}catch(e){}}
   /* GTM Preview / Tag Assistant: remember debug mode for this tab so the thank-you page always loads GTM there */
   if(qs.has("gtm_debug")||/tagassistant\.google\.com/.test(document.referrer)){try{sessionStorage.setItem("sb_gtm_debug","1");}catch(e){}}
   if(VAR==="B"&&HI_ON){var BH={city_l:"शहर",city_e:"कृपया अपना शहर लिखें।",seg_l:"आप सबसे ज़्यादा क्या ट्रेड करते हैं?",cap_l:"ट्रेडिंग कैपिटल",seg_e:"कृपया एक विकल्प चुनें।",sel:"चुनें",
