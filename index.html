@@ -459,17 +459,11 @@ html[lang=hi] .rot{height:1.7em;line-height:1.7}
 <script>
 /* Page variant. A/B test ended 14-Oct-2026: everyone gets B (single form). ?sb_v=A previews the old step form (not saved).
    To restart the 50/50 test set AB_SPLIT=true. */
-(function(){var AB_SPLIT=true,v="B",q=new URLSearchParams(location.search),f=(q.get("sb_v")||"").toUpperCase(),fm=q.get("form");
-  /* 50/50 form test (from 16-Oct-2026): B = Form 1 full form (name, email, mobile, city, segment, capital) · C = Form 2 short form (name, mobile, email).
-     Each visitor keeps the same form on return. Preview: ?form=1 or ?form=2 (also ?sb_v=B / C; ?sb_v=A = old step form). */
-  if(AB_SPLIT){try{v=localStorage.getItem("sb_form")||"";}catch(e){} if(v!=="B"&&v!=="C")v=Math.random()<0.5?"B":"C";}
-  try{localStorage.setItem("sb_form",v);}catch(e){}
-  var AD=q.has("gclid")||q.has("gbraid")||q.has("wbraid"); window.SB_AD_CLICK=AD;
-  if(AD){f="";fm="";}  /* real ad clicks always get the 50/50 split, even if a test link was used as the ad URL */
-  if(fm==="1")f="B"; if(fm==="2")f="C";
-  if(f==="A"||f==="B"||f==="C")v=f;
+(function(){ /* Single form (from 18-Oct-2026): everyone gets the short form + gamified questions ("C"). */
+  var v="C", q=new URLSearchParams(location.search);
+  window.SB_AD_CLICK=q.has("gclid")||q.has("gbraid")||q.has("wbraid");
   window.SB_VARIANT=v; document.documentElement.setAttribute("data-v",v);
-  window.SB_LPV=v==="B"?"B_single_form":v==="C"?"C_short_form":"A_step_form";
+  window.SB_LPV="C_short_form";
   window.dataLayer=window.dataLayer||[]; window.dataLayer.push({lp_variant:window.SB_LPV});})();
 </script>
 <!-- Google Tag Manager -->
@@ -525,29 +519,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="field" id="f-phone"><label data-i18n="t8" for="phone">Mobile number</label>
               <div class="input"><span class="pre">+91</span><input id="phone" name="phone" type="tel" autocomplete="tel-national" inputmode="numeric" placeholder="10-digit mobile number" maxlength="10"></div>
               <div data-i18n="t11" class="err">Please enter a valid 10-digit mobile number.</div></div>
-            <div class="vb">
-            <div class="field" id="f-city"><label for="city" data-b="city_l">City</label>
-              <div class="input"><input id="city" name="city" list="cityList" autocomplete="address-level2" placeholder="e.g. Pune" maxlength="40"></div>
-              <div class="err" data-b="city_e">Please enter your city.</div></div>
-            <div class="bgrid">
-            <div class="field" id="f-seg"><label for="seg" data-b="seg_l">What do you trade most?</label>
-              <div class="input"><select id="seg" required>
-                <option value="" disabled selected data-b="sel">Select</option>
-                <option value="Index options (Nifty / Bank Nifty / Sensex)" data-b="s1">Index options (Nifty, Bank Nifty)</option>
-                <option value="Stock options" data-b="s2">Stock options</option>
-                <option value="Futures" data-b="s3">Futures</option>
-                <option value="Equity cash / intraday" data-b="s4">Equity cash / intraday</option>
-                <option value="New to trading" data-b="s5">I'm just starting out</option></select></div>
-              <div class="err" data-b="seg_e">Please select one.</div></div>
-            <div class="field" id="f-cap"><label for="cap" data-b="cap_l">Trading capital</label>
-              <div class="input"><select id="cap" required>
-                <option value="" disabled selected data-b="sel">Select</option>
-                <option value="Below ₹50,000" data-b="c1">Below ₹50K</option>
-                <option value="₹50,000 – ₹2 lakh">₹50K – ₹2L</option>
-                <option value="₹2 lakh – ₹5 lakh">₹2L – ₹5L</option>
-                <option value="Above ₹5 lakh" data-b="c4">Above ₹5L</option></select></div>
-              <div class="err" data-b="seg_e">Please select one.</div></div>
-            </div></div>
             <label class="consent" id="consentWrap"><input type="checkbox" id="consent"><span data-i18n="t139">I agree to be contacted by Stockbazaari via call, SMS or WhatsApp about its research calls, even if I am on DND.</span></label>
             <div class="cerr" id="consentErr" role="alert">Please tick the box above to agree before submitting.</div>
             <button type="submit" class="btn btn-main submit" id="ctaMain"><span data-i18n="t4">Get Research Calls for Today</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
@@ -918,7 +889,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   });
   document.getElementById("phone").addEventListener("input",function(){this.value=this.value.replace(/\D/g,"").slice(0,10);});
   document.getElementById("consent").addEventListener("change",function(){document.getElementById("consentWrap").classList.remove("bad");});
-  [["city","f-city"],["seg","f-seg"],["cap","f-cap"]].forEach(function(x){var el=document.getElementById(x[0]);el.addEventListener(el.tagName==="SELECT"?"change":"input",function(){bad(x[1],false);});});
   document.querySelectorAll(".opts").forEach(function(g){g.addEventListener("click",function(e){var b=e.target.closest(".opt");if(!b)return;
     g.querySelectorAll(".opt").forEach(function(o){o.classList.remove("sel");});b.classList.add("sel");data[g.dataset.key]=b.dataset.v;
     var px=document.createElement("span");px.className="popx";px.textContent="+25%";b.appendChild(px);setTimeout(function(){px.remove();},900);
