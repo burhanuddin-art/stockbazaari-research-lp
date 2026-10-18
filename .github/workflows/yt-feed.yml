@@ -18,11 +18,21 @@ jobs:
       - name: Fetch latest videos
         run: |
           python3 - <<'PY'
-          import json, re, html, urllib.request
-          url = "https://www.youtube.com/feeds/videos.xml?channel_id=UC68nemIejmqqzYfIlNmSRiA"
-          xml = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=20).read().decode("utf-8")
+          import json, re, html, time, urllib.request
+          urls = ["https://www.youtube.com/feeds/videos.xml?channel_id=UC68nemIejmqqzYfIlNmSRiA",
+                  "https://www.youtube.com/feeds/videos.xml?playlist_id=UU68nemIejmqqzYfIlNmSRiA"]
+          xml = None
+          for attempt in range(3):
+              for url in urls:
+                  try:
+                      xml = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Language": "en"}), timeout=20).read().decode("utf-8")
+                      break
+                  except Exception as ex:
+                      print("fetch failed", url, ex)
+              if xml: break
+              time.sleep(20)
           out = []
-          for e in re.findall(r"<entry>(.*?)</entry>", xml, re.S):
+          for e in re.findall(r"<entry>(.*?)</entry>", xml or "", re.S):
               vid = re.search(r"<yt:videoId>(.*?)</yt:videoId>", e)
               tit = re.search(r"<title>(.*?)</title>", e)
               pub = re.search(r"<published>(.*?)</published>", e)
@@ -34,7 +44,7 @@ jobs:
               if len(out) >= 8: break
           if out:
               json.dump(out, open("videos.json", "w"), ensure_ascii=False, indent=1)
-          print(len(out), "videos")
+          print(len(out), "videos (feed unavailable this run; keeping previous list)" if not out else "videos")
           PY
       - name: Commit if changed
         run: |
